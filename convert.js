@@ -17,6 +17,7 @@ cardlist = cardlist
                .filter(c => c.types.includes("Creature"))
                .filter(c => c.legalities.hasOwnProperty("vintage"))
                .filter(c => c.legalities.vintage != "Banned")
+               .filter(c => !c.hasOwnProperty("side") || c.side == "a")
 cardlist.forEach(c => {
     delete c.rulings
     delete c.foreignData
