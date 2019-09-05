@@ -72,8 +72,19 @@ const getCard = (scryFallId, cb) => {
     }
     else {
       let card = JSON.parse(body)
+      let uri = undefined
       if(card.image_uris && card.image_uris.normal) {
-        Jimp.read(card.image_uris.normal)
+        uri = card.image_uris.normal
+      }
+      else if(card.card_faces 
+              && card.card_faces.length > 0 
+              && card.card_faces[0].image_uris
+              && card.card_faces[0].image_uris.normal) {
+       uri = card.card_faces[0].image_uris.normal
+     }
+      
+      if(uri) {
+        Jimp.read(uri)
             .then(image => image.resize(230,320))
             .then(image => image.write(filePath, 
                   () => cb(filePath) 
