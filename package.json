@@ -1,0 +1,26 @@
+{
+  "name": "momir-back",
+  "version": "1.0.0",
+  "description": "Backend for Momir Basic app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozzie/momir-back.git"
+  },
+  "author": "Jussi Timonen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mozzie/momir-back/issues"
+  },
+  "homepage": "https://github.com/mozzie/momir-back#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "jimp": "^0.6.8",
+    "node-native-printer": "^1.0.0-beta.5"
+  }
+}
