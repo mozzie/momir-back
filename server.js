@@ -65,7 +65,7 @@ const getCard = (scryFallId, cb) => {
   let SFurl = "https://api.scryfall.com/cards/" + scryFallId;
   request.get(SFurl, (err, response, body) => {
     if(err) {
-        console.log(SFurl, err)
+        console.log("ERROR: (" + SFurl + ") " + err)
         cb(null);
     }
     else {
@@ -78,7 +78,7 @@ const getCard = (scryFallId, cb) => {
             ))
       }
       else {
-        console.log(SFurl);
+        console.log("Card not found from URL:" + SFurl);
         cb(null);
       }
     }
