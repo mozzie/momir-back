@@ -1,12 +1,11 @@
-const express = require('express');
-const app = express();
-const fs = require('fs');
-const request = require('request');
-const Jimp = require('jimp');
-const printer = require('node-native-printer');
-const cors = require('cors');
+const express = require('express')
+const fs = require('fs')
+const request = require('request')
+const Jimp = require('jimp')
+const printer = require('node-native-printer')
+const cors = require('cors')
 
-let rawdata = fs.readFileSync('creatures.json');
+let rawdata = fs.readFileSync('creatures.json')
 let cards = JSON.parse(rawdata);
 let cardlist = []
 
@@ -20,11 +19,13 @@ if(c.scryfallId) {
 })
 
 if(!fs.existsSync(__dirname + "/pictures")) {
-  fs.mkdirSync(__dirname + "/pictures/");
+  fs.mkdirSync(__dirname + "/pictures/")
 }
 if(!fs.existsSync(__dirname + "/dithered")) {
-  fs.mkdirSync(__dirname + "/dithered/");
+  fs.mkdirSync(__dirname + "/dithered/")
 }
+
+const app = express()
 
 app.use(cors())
 
@@ -33,7 +34,7 @@ app.get('/card/:cmc', (req, res) => {
    if(cardlist[req.params.cmc]) {
        card = cardlist[req.params.cmc][Math.floor(Math.random()*cardlist[req.params.cmc].length)]
    }
-   res.send(card);
+   res.send(card)
 })
 
 app.get('/dithered/:scryFallId', (req, res) => {
@@ -50,7 +51,7 @@ app.get('/printers', (req, res) => {
 
 app.get('/print/:scryFallId', (req, res) => {
  if(printer.listPrinters().map(p => p.name).includes(req.query.printer)) {
-   //getCard(req.params.scryFallId, (path) => dither(req.params.scryFallId, path, (ditherPath) => printer.print(ditherPath, {})))
+   getCard(req.params.scryFallId, (path) => dither(req.params.scryFallId, path, (ditherPath) => printer.print(ditherPath, {})))
    res.send({"printed":true})
  }
  else {
@@ -59,13 +60,12 @@ app.get('/print/:scryFallId', (req, res) => {
 })
 
 const getCard = (scryFallId, cb) => {
- const filePath = __dirname + "/pictures/"+scryFallId +".jpg";
+ const filePath = __dirname + "/pictures/"+scryFallId +".jpg"
  if(!fs.existsSync(filePath)) {
   let SFurl = "https://api.scryfall.com/cards/" + scryFallId;
   request.get(SFurl, (err, response, body) => {
     if(err) {
-        console.log(SFurl);
-        console.log(err);
+        console.log(SFurl, err)
         cb(null);
     }
     else {
@@ -85,7 +85,7 @@ const getCard = (scryFallId, cb) => {
   })
  }
  else { 
-  cb(filePath);
+  cb(filePath)
  }
 }
 
@@ -101,9 +101,7 @@ const dither = (scryFallId, cardPath, cb) => {
       bits = image.bitmap.data.filter((value, index) => index % 4 == 0)
       floydSteinberg(bits, image.bitmap.width, image.bitmap.height)
       for(let i = 0; i<bits.length;i++) {
-          image.bitmap.data[i*4] = bits[i]
-          image.bitmap.data[i*4+1] = bits[i]
-          image.bitmap.data[i*4+2] = bits[i]
+          image.bitmap.data[i*4] = image.bitmap.data[i*4+1] = image.bitmap.data[i*4+2] = bits[i]
           image.bitmap.data[i*4+3] = 255
       }
       image.write(filePath, () => cb(filePath))
@@ -117,16 +115,16 @@ const dither = (scryFallId, cardPath, cb) => {
 const floydSteinberg = (sb, w, h) => {
   for(let i=0; i<h; i++) {
     for(let j=0; j<w; j++) {
-      let ci = i*w+j;               // current buffer index
-      let cc = sb[ci];              // current color
-      let rc = (cc<128?0:255);      // real (rounded) color
-      let err = (cc-rc)>>3;              // error amount
-      sb[ci] = rc;                  // saving real color
-      if(j+1<w) sb[ci  +1] += (err*7)>>4;  // if right neighbour exists
-      if(i+1==h) continue;   // if we are in the last line
-      if(j  >0) sb[ci+w-1] += (err*3)>>4;  // bottom left neighbour
-                sb[ci+w  ] += (err*5)>>4;  // bottom neighbour
-      if(j+1<w) sb[ci+w+1] += (err*1)>>4;  // bottom right neighbour
+      let ci = i*w+j;
+      let cc = sb[ci];
+      let rc = (cc<128?0:255);
+      let err = (cc-rc)>>3;
+      sb[ci] = rc;
+      if(j+1<w) sb[ci  +1] += (err*7)>>4;
+      if(i+1==h) continue;
+      if(j  >0) sb[ci+w-1] += (err*3)>>4;
+                sb[ci+w  ] += (err*5)>>4;
+      if(j+1<w) sb[ci+w+1] += (err*1)>>4;
     }
   }
 }
