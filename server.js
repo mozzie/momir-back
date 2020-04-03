@@ -117,11 +117,11 @@ const dither = (scryFallId, cardPath, cb) => {
           image.bitmap.data[i*4] = image.bitmap.data[i*4+1] = image.bitmap.data[i*4+2] = bits[i]
           image.bitmap.data[i*4+3] = 255
       }
-      image.write(filePath, () => cb(filePath))
+      image.write(filePath, () => cb(cardPath))
      })
  }
  else {
-   cb(filePath)
+   cb(cardPath)
  }
 }
 
@@ -130,7 +130,7 @@ const floydSteinberg = (sb, w, h) => {
     for(let j=0; j<w; j++) {
       let ci = i*w+j;
       let cc = sb[ci];
-      let rc = (cc<128?0:255);
+      let rc = (cc<100?0:255);
       let err = (cc-rc)>>3;
       sb[ci] = rc;
       if(j+1<w) sb[ci  +1] += (err*7)>>4;
