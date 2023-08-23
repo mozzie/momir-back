@@ -1,11 +1,11 @@
 const fs = require('fs');
 
-let rawdata = fs.readFileSync('scryfall-oracle-cards.json');
+let rawdata = require('./scryfall-oracle-cards.json');
 let scryfalldata = JSON.parse(rawdata);
 let scryfallmap = {}
 scryfalldata.forEach(d => scryfallmap[d.oracle_id] = d.id)
 
-rawdata = fs.readFileSync('AllCards.json');
+rawdata = require('./AllCards.json');
 let cards = JSON.parse(rawdata);
 let cardlist = []
 for (let c in cards) {
@@ -42,4 +42,3 @@ cardlist.forEach(c => {
 
 let data = JSON.stringify(cardlist)
 fs.writeFileSync("creatures.json", data)
-
