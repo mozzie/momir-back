@@ -4,7 +4,7 @@ const express = require('express')
 const fs = require('fs')
 const request = require('request')
 const Jimp = require('jimp')
-const printer = require('node-native-printer')
+const printer = require('@thiagoelg/node-printer')
 const cors = require('cors')
 
 let rawdata = fs.readFileSync('creatures.json')
@@ -12,11 +12,11 @@ let cards = JSON.parse(rawdata);
 let cardlist = []
 
 cards.forEach(c => {
-if(!cardlist[c.convertedManaCost]) {
-    cardlist[c.convertedManaCost] = []
+if(!cardlist[c.cmc]) {
+    cardlist[c.cmc] = []
 }
 if(c.scryfallId) {
-  cardlist[c.convertedManaCost].push(c)
+  cardlist[c.cmc].push(c)
 }
 })
 
@@ -48,12 +48,12 @@ app.get('/picture/:scryFallId', (req, res) => {
 })
 
 app.get('/printers', (req, res) => {
- res.send(printer.listPrinters())
+ res.send(printer.getPrinters())
 })
 
 app.get('/print/:scryFallId', (req, res) => {
- if(printer.listPrinters().map(p => p.name).includes(req.query.printer)) {
-   getCard(req.params.scryFallId, (path) => dither(req.params.scryFallId, path, (ditherPath) => printer.print(ditherPath, {})))
+ if(printer.getPrinters().map(p => p.name).includes(req.query.printer)) {
+   getCard(req.params.scryFallId, (path) => printer.printFile({filename: path , type:'JPEG'}))
    res.send({"printed":true})
  }
  else {
@@ -76,18 +76,18 @@ const getCard = (scryFallId, cb) => {
       if(card.image_uris && card.image_uris.normal) {
         uri = card.image_uris.normal
       }
-      else if(card.card_faces 
-              && card.card_faces.length > 0 
+      else if(card.card_faces
+              && card.card_faces.length > 0
               && card.card_faces[0].image_uris
               && card.card_faces[0].image_uris.normal) {
        uri = card.card_faces[0].image_uris.normal
      }
-      
+
       if(uri) {
         Jimp.read(uri)
             .then(image => image.resize(230,320))
-            .then(image => image.write(filePath, 
-                  () => cb(filePath) 
+            .then(image => image.write(filePath,
+                  () => cb(filePath)
             ))
       }
       else {
@@ -97,7 +97,7 @@ const getCard = (scryFallId, cb) => {
     }
   })
  }
- else { 
+ else {
   cb(filePath)
  }
 }
@@ -109,7 +109,7 @@ const server = app.listen(8081, () => {
 const dither = (scryFallId, cardPath, cb) => {
  const filePath = __dirname + "/dithered/"+scryFallId +".jpg";
  if(!fs.existsSync(filePath)) {
-   Jimp.read(cardPath).then(image => 
+   Jimp.read(cardPath).then(image =>
      image.greyscale()).then(image => {
       bits = image.bitmap.data.filter((value, index) => index % 4 == 0)
       floydSteinberg(bits, image.bitmap.width, image.bitmap.height)
@@ -141,5 +141,3 @@ const floydSteinberg = (sb, w, h) => {
     }
   }
 }
-
-
